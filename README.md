@@ -15,10 +15,10 @@ Sistema de controle de estoque.
 ![Diagrama de Entidade e Relacionamento](der.jpg)
 
 ## Tarefas
-- [ ] Criar models
-- [ ] Criar repositories
-- [ ] Criar services
-- [ ] Criar implementações dos serviços
+- [x] Criar models
+- [x] Criar repositories
+- [x] Criar services
+- [x] Criar implementações dos serviços
 - [ ] Criar controllers
 - [ ] Configurar banco de dados
 - [ ] Testar no Postman/Swagger
