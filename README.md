@@ -11,6 +11,7 @@ Sistema de controle de estoque.
 - O sistema deve gerar relatórios sobre o estoque, incluindo informações sobre os produtos em estoque, os produtos com níveis baixos de estoque e os produtos com níveis de estoque excessivos. 
 - O sistema deve enviar alertas sobre níveis baixos de estoque, incluindo informações sobre o produto, a quantidade necessária e a data de alerta.
 
+## DER
 ![Diagrama de Entidade e Relacionamento](der.jpg)
 
 ## Tarefas
@@ -19,4 +20,8 @@ Sistema de controle de estoque.
 - [ ] Criar services
 - [ ] Criar implementações dos serviços
 - [ ] Criar controllers
+- [ ] Configurar banco de dados
+- [ ] Testar no Postman/Swagger
 - [ ] Criar testes
+- [ ] Configurar JWT
+- [ ] Configurar CORS
