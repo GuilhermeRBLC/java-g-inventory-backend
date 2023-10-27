@@ -4,6 +4,9 @@ import com.guilhermerblc.inventory.models.User;
 import com.guilhermerblc.inventory.repository.UserRepository;
 import com.guilhermerblc.inventory.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return username -> repository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
 
     @Override
     public List<User> findAll() {
