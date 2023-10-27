@@ -16,17 +16,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 125, nullable = false)
     private String name;
 
+    @Column(length = 125, nullable = false)
     private String role;
 
+    @Column(length = 20, nullable = false)
     private String username;
 
+    @Column(length = 125, nullable = false)
     private String password;
 
     @Enumerated(EnumType.ORDINAL)
-    private Status status;
+    @Column(nullable = false)
+    private Status status = Status.DEACTIVE;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Permission> permissions;
 
     @Column(nullable = false, updatable = false)

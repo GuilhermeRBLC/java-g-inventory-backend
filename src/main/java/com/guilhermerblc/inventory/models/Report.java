@@ -16,8 +16,10 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 125, nullable = false)
     private String description;
 
+    @Column(length = 1024, nullable = false)
     private String filters;
 
     @Column(nullable = false, updatable = false)

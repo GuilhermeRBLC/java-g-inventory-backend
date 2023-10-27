@@ -19,8 +19,8 @@ Sistema de controle de estoque.
 - [x] Criar repositories
 - [x] Criar services
 - [x] Criar implementações dos serviços
-- [ ] Criar controllers
-- [ ] Configurar banco de dados
+- [x] Criar controllers
+- [x] Configurar banco de dados
 - [ ] Testar no Postman/Swagger
 - [ ] Criar testes
 - [ ] Configurar JWT

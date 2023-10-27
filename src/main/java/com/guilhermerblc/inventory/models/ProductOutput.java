@@ -16,20 +16,27 @@ public class ProductOutput {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false)
     private Product product;
 
+    @Column(length = 20, nullable = false)
     private String barcode;
 
+    @Column(length = 125, nullable = false)
     private String buyer;
 
-    @Column(name = "sale_value", precision = 10, scale = 2)
+    @Column(name = "sale_value", precision = 10, scale = 2, nullable = false)
     private BigDecimal saleValue;
 
     @Column(name = "sale_date", nullable = false)
     private LocalDateTime saleDate;
 
+    @Column(length = 1024)
     private String observations;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(nullable = false)
     private User user;
 
     @Column(nullable = false, updatable = false)
