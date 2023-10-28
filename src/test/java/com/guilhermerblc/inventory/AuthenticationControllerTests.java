@@ -24,14 +24,14 @@ public class AuthenticationControllerTests {
 
     @Test
     void signingShouldReturnAuthenticationToken() throws Exception {
+        // Arrange
         String url = "http://localhost:" + port + "/api/v1/auth/signing";
+        SigningRequest request = new SigningRequest("gerente", "1234");
 
-        SigningRequest request = new SigningRequest();
-        request.setUsername("gerente");
-        request.setPassword("1234");
-
+        // Act
         ResponseEntity<JwtAuthenticationResponse> response = restTemplate.postForEntity(url, request, JwtAuthenticationResponse.class);
 
+        // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
     }

@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "tb_product_input")
 public class ProductInput {
 
@@ -37,6 +39,7 @@ public class ProductInput {
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer"})
     private User user;
 
     @Column(nullable = false, updatable = false)

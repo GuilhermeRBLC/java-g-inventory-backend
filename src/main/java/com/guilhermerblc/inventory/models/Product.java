@@ -1,13 +1,18 @@
 package com.guilhermerblc.inventory.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "tb_product")
 public class Product {
 
@@ -32,6 +37,7 @@ public class Product {
 
     @JoinColumn(nullable = false)
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer"})
     private User user;
 
     @Column(nullable = false, updatable = false)
