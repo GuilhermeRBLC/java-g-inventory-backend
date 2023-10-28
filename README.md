@@ -23,6 +23,6 @@ Sistema de controle de estoque.
 - [x] Configurar banco de dados
 - [x] Configurar JWT
 - [x] Configurar CORS
-- [ ] Criar crud de configurações
-- [ ] Testar no Postman/Swagger
+- [x] Criar crud de configurações
 - [ ] Criar testes
+- [ ] Testar no Postman/Swagger
