@@ -26,7 +26,7 @@ public class User implements UserDetails {
     @Column(length = 125, nullable = false)
     private String role;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false, unique = true)
     private String username;
 
     @Column(length = 125, nullable = false)
@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Status status = Status.DEACTIVE;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private List<Permission> permissions;
 
     @Column(nullable = false, updatable = false)
@@ -46,17 +46,22 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissions.stream().map( a -> new SimpleGrantedAuthority(a.getDescription()) ).toList();
+        return permissions.stream().map( a -> new SimpleGrantedAuthority( "ROLE_" + a.getDescription()) ).toList();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return status == Status.ACTIVE;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return status == Status.ACTIVE;
+        return true;
     }
 
     @Override
@@ -66,6 +71,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status == Status.ACTIVE;
+        return true;
     }
+
 }

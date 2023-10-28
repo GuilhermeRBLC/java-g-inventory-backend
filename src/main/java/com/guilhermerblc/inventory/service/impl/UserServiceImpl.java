@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetailsService userDetailsService() {
@@ -36,6 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User crate(User entity) {
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         return repository.save(entity);
     }
 
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(entity.getRole());
         user.setPermissions(entity.getPermissions());
         user.setUsername(entity.getUsername());
-        user.setPassword(entity.getPassword());
+        user.setPassword(passwordEncoder.encode(entity.getPassword()));
         user.setModified(LocalDateTime.now());
 
         return repository.save(user);

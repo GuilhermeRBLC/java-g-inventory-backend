@@ -1,10 +1,10 @@
 package com.guilhermerblc.inventory.service;
 
 import com.guilhermerblc.inventory.service.request.SigningRequest;
-import com.guilhermerblc.inventory.service.response.JwtAutenticationResponse;
+import com.guilhermerblc.inventory.service.response.JwtAuthenticationResponse;
 
 public interface AuthenticationService {
 
-    JwtAutenticationResponse signing(SigningRequest request);
+    JwtAuthenticationResponse signing(SigningRequest request);
 
 }

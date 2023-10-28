@@ -5,7 +5,7 @@ import com.guilhermerblc.inventory.repository.UserRepository;
 import com.guilhermerblc.inventory.service.AuthenticationService;
 import com.guilhermerblc.inventory.service.JwtService;
 import com.guilhermerblc.inventory.service.request.SigningRequest;
-import com.guilhermerblc.inventory.service.response.JwtAutenticationResponse;
+import com.guilhermerblc.inventory.service.response.JwtAuthenticationResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +20,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
 
     @Override
-    public JwtAutenticationResponse signing(SigningRequest request) {
+    public JwtAuthenticationResponse signing(SigningRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
         var jwt = jwtService.generateToken(user);
-        return new JwtAutenticationResponse(jwt, user.getId());
+        return new JwtAuthenticationResponse(jwt, user.getId());
     }
 
 }
