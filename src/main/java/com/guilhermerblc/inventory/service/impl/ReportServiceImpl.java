@@ -27,6 +27,8 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Report crate(Report entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         return repository.save(entity);
     }
 

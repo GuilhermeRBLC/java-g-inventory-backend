@@ -27,6 +27,8 @@ public class ProductOutputServiceImpl implements ProductOutputService {
 
     @Override
     public ProductOutput crate(ProductOutput entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         return repository.save(entity);
     }
 

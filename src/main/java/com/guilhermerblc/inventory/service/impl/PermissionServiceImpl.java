@@ -27,6 +27,8 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public Permission crate(Permission entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         return repository.save(entity);
     }
 

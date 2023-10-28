@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User crate(User entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
         return repository.save(entity);
     }

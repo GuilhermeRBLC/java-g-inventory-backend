@@ -27,6 +27,8 @@ public class ProductInputServiceImpl implements ProductInputService {
 
     @Override
     public ProductInput crate(ProductInput entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         return repository.save(entity);
     }
 

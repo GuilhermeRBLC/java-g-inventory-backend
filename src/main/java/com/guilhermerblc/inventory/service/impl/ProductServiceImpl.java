@@ -27,6 +27,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product crate(Product entity) {
+        entity.setCreated(LocalDateTime.now());
+        entity.setModified(null);
         return repository.save(entity);
     }
 
