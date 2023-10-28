@@ -8,6 +8,8 @@ public interface ProductOutputService {
 
     List<ProductOutput> findAll();
 
+    List<ProductOutput> findByProductId(Long productId);
+
     ProductOutput findById(Long id);
 
     ProductOutput crate(ProductOutput entity);

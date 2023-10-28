@@ -16,7 +16,7 @@ public class ProductOutput {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Product product;
 
@@ -35,7 +35,7 @@ public class ProductOutput {
     @Column(length = 1024)
     private String observations;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
 

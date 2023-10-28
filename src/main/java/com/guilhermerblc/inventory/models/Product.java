@@ -31,7 +31,7 @@ public class Product {
     private String observations;
 
     @JoinColumn(nullable = false)
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     private User user;
 
     @Column(nullable = false, updatable = false)

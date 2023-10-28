@@ -36,8 +36,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public Configuration update(Long id, Configuration entity) {
         Configuration configuration = findById(id);
 
-        configuration.setAlias(entity.getAlias());
-        configuration.setStored(entity.getStored());
+        configuration.setName(entity.getName());
+        configuration.setData(entity.getData());
         configuration.setModified(LocalDateTime.now());
 
         return repository.save(configuration);

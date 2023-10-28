@@ -1,13 +1,17 @@
 package com.guilhermerblc.inventory.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "tb_configuration")
 public class Configuration {
 
@@ -16,10 +20,10 @@ public class Configuration {
     private Long id;
 
     @Column(unique = true, length = 20, nullable = false)
-    private String alias;
+    private String name;
 
     @Column(length = 1024, nullable = false)
-    private String stored;
+    private String data;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime created;

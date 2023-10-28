@@ -1,9 +1,11 @@
 package com.guilhermerblc.inventory.service.impl;
 
 import com.guilhermerblc.inventory.models.ProductInput;
+import com.guilhermerblc.inventory.models.User;
 import com.guilhermerblc.inventory.repository.ProductInputRepository;
 import com.guilhermerblc.inventory.service.ProductInputService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,12 +23,19 @@ public class ProductInputServiceImpl implements ProductInputService {
     }
 
     @Override
+    public List<ProductInput> findByProductId(Long productId) {
+        return repository.findByProductId(productId);
+    }
+
+    @Override
     public ProductInput findById(Long id) {
         return repository.findById(id).orElseThrow();
     }
 
     @Override
     public ProductInput crate(ProductInput entity) {
+        User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        entity.setUser(authenticatedUser);
         entity.setCreated(LocalDateTime.now());
         entity.setModified(null);
         return repository.save(entity);
@@ -35,6 +44,7 @@ public class ProductInputServiceImpl implements ProductInputService {
     @Override
     public ProductInput update(Long id, ProductInput entity) {
         ProductInput productInput = findById(id);
+        User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         productInput.setProduct(entity.getProduct());
         productInput.setBarcode(entity.getBarcode());
@@ -42,6 +52,7 @@ public class ProductInputServiceImpl implements ProductInputService {
         productInput.setPurchaseValue(entity.getPurchaseValue());
         productInput.setPurchaseDate(entity.getPurchaseDate());
         productInput.setObservations(entity.getObservations());
+        productInput.setUser(authenticatedUser);
         productInput.setUser(entity.getUser());
         productInput.setModified(LocalDateTime.now());
 

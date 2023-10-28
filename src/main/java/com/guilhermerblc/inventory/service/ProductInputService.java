@@ -8,6 +8,8 @@ public interface ProductInputService {
 
     List<ProductInput> findAll();
 
+    List<ProductInput> findByProductId(Long productId);
+
     ProductInput findById(Long id);
 
     ProductInput crate(ProductInput entity);

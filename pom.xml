@@ -56,6 +56,13 @@
 		</dependency>
 		<!-- Web token -->
 
+		<!-- H2 for Tests -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+		</dependency>
+		<!-- H2 for Tests -->
+
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
