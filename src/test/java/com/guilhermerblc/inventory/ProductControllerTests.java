@@ -36,6 +36,8 @@ public class ProductControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    private final String urlPath = "/api/v1/product";
+
     String authenticate() throws Exception {
         String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
 
@@ -52,7 +54,7 @@ public class ProductControllerTests {
     @Test
     void productShouldBeCreated() throws Exception {
         // Arrange
-        String productUrl = "http://localhost:" + port + "/api/v1/product";
+        String productUrl = "http://localhost:" + port + urlPath;
         Product productRequest = new Product(null, "Morango", "fruta", 5, 10, "Uma fruta vermelha.", null, null, null);
 
         String authenticationToken = authenticate();
@@ -88,7 +90,7 @@ public class ProductControllerTests {
         productRequest.setInventoryMinimum(25);
         productRequest.setInventoryMaximum(50);
 
-        String productUrl = "http://localhost:" + port + "/api/v1/product/" + productRequest.getId();
+        String productUrl = "http://localhost:" + port + urlPath + "/" + productRequest.getId();
 
         String authenticationToken = authenticate();
 
@@ -133,7 +135,7 @@ public class ProductControllerTests {
         }
         productRepository.saveAll(products);
 
-        String productUrl = "http://localhost:" + port + "/api/v1/product";
+        String productUrl = "http://localhost:" + port + urlPath;
 
         String authenticationToken = authenticate();
 
@@ -172,7 +174,7 @@ public class ProductControllerTests {
         products = productRepository.saveAll(products);
 
         Product productRequest = products.get(5);
-        String productUrl = "http://localhost:" + port + "/api/v1/product/" + productRequest.getId();
+        String productUrl = "http://localhost:" + port + urlPath + "/" + productRequest.getId();
 
         String authenticationToken = authenticate();
 

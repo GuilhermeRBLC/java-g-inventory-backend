@@ -51,9 +51,9 @@ public class ProductOutputServiceImpl implements ProductOutputService {
         productOutput.setBuyer(entity.getBuyer());
         productOutput.setSaleValue(entity.getSaleValue());
         productOutput.setSaleDate(entity.getSaleDate());
+        productOutput.setQuantity(entity.getQuantity());
         productOutput.setObservations(entity.getObservations());
         productOutput.setUser(authenticatedUser);
-        productOutput.setUser(entity.getUser());
         productOutput.setModified(LocalDateTime.now());
 
         return repository.save(productOutput);

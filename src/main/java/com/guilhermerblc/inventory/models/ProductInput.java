@@ -2,7 +2,9 @@ package com.guilhermerblc.inventory.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "tb_product_input")
 public class ProductInput {
@@ -20,6 +24,7 @@ public class ProductInput {
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @JsonIgnoreProperties("hibernateLazyInitializer")
     private Product product;
 
     @Column(length = 20, nullable = false)
@@ -33,6 +38,9 @@ public class ProductInput {
 
     @Column(name = "purchase_date", nullable = false)
     private LocalDateTime purchaseDate;
+
+    @Column(nullable = false)
+    private Long quantity;
 
     @Column(length = 1024)
     private String observations;

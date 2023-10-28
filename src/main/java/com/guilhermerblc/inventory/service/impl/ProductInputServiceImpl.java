@@ -51,9 +51,9 @@ public class ProductInputServiceImpl implements ProductInputService {
         productInput.setSupplier(entity.getSupplier());
         productInput.setPurchaseValue(entity.getPurchaseValue());
         productInput.setPurchaseDate(entity.getPurchaseDate());
+        productInput.setQuantity(entity.getQuantity());
         productInput.setObservations(entity.getObservations());
         productInput.setUser(authenticatedUser);
-        productInput.setUser(entity.getUser());
         productInput.setModified(LocalDateTime.now());
 
         return repository.save(productInput);

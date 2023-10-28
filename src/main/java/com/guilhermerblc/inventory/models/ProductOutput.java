@@ -20,6 +20,7 @@ public class ProductOutput {
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
+    @JsonIgnoreProperties("hibernateLazyInitializer")
     private Product product;
 
     @Column(length = 20, nullable = false)
@@ -33,6 +34,9 @@ public class ProductOutput {
 
     @Column(name = "sale_date", nullable = false)
     private LocalDateTime saleDate;
+
+    @Column(nullable = false)
+    private Long quantity;
 
     @Column(length = 1024)
     private String observations;
