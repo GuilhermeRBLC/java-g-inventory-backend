@@ -26,20 +26,4 @@ public class PermissionController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<Permission> create(@RequestBody Permission body) {
-        return ResponseEntity.ok(service.crate(body));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Permission> update(@PathVariable Long id, @RequestBody Permission body) {
-        return ResponseEntity.ok(service.update(id, body));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
 }

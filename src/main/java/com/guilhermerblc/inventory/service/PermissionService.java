@@ -10,10 +10,4 @@ public interface PermissionService {
 
     Permission findById(Long id);
 
-    Permission crate(Permission entity);
-
-    Permission update(Long id, Permission entity);
-
-    void delete(Long id);
-
 }
