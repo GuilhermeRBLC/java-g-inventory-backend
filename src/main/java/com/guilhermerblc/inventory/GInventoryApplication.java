@@ -59,20 +59,20 @@ public class GInventoryApplication {
 			if(userRepository.findAll().toArray().length > 0) return;
 
 			permissionRepository.saveAll(List.of(
-					new Permission(null, "VIEW_USERS", LocalDateTime.now(), null),
-					new Permission(null, "EDIT_USERS", LocalDateTime.now(), null),
-					new Permission(null, "DELETE_USERS", LocalDateTime.now(), null),
-					new Permission(null, "VIEW_PRODUCTS", LocalDateTime.now(), null),
-					new Permission(null, "EDIT_PRODUCTS", LocalDateTime.now(), null),
-					new Permission(null, "DELETE_PRODUCTS", LocalDateTime.now(), null),
-					new Permission(null, "VIEW_INPUTS", LocalDateTime.now(), null),
-					new Permission(null, "EDIT_INPUTS", LocalDateTime.now(), null),
-					new Permission(null, "DELETE_INPUTS", LocalDateTime.now(), null),
-					new Permission(null, "VIEW_OUTPUTS", LocalDateTime.now(), null),
-					new Permission(null, "EDIT_OUTPUTS", LocalDateTime.now(), null),
-					new Permission(null, "DELETE_OUTPUTS", LocalDateTime.now(), null),
-					new Permission(null, "GENERATE_REPORTS", LocalDateTime.now(), null),
-					new Permission(null, "EDIT_CONFIGURATIONS", LocalDateTime.now(), null)
+					new Permission(1L, "VIEW_USERS", LocalDateTime.now(), null),
+					new Permission(2L, "EDIT_USERS", LocalDateTime.now(), null),
+					new Permission(3L, "DELETE_USERS", LocalDateTime.now(), null),
+					new Permission(4L, "VIEW_PRODUCTS", LocalDateTime.now(), null),
+					new Permission(5L, "EDIT_PRODUCTS", LocalDateTime.now(), null),
+					new Permission(6L, "DELETE_PRODUCTS", LocalDateTime.now(), null),
+					new Permission(7L, "VIEW_INPUTS", LocalDateTime.now(), null),
+					new Permission(8L, "EDIT_INPUTS", LocalDateTime.now(), null),
+					new Permission(9L, "DELETE_INPUTS", LocalDateTime.now(), null),
+					new Permission(10L, "VIEW_OUTPUTS", LocalDateTime.now(), null),
+					new Permission(11L, "EDIT_OUTPUTS", LocalDateTime.now(), null),
+					new Permission(12L, "DELETE_OUTPUTS", LocalDateTime.now(), null),
+					new Permission(13L, "GENERATE_REPORTS", LocalDateTime.now(), null),
+					new Permission(14L, "EDIT_CONFIGURATIONS", LocalDateTime.now(), null)
 			));
 
 			configurationRepository.saveAll(List.of(

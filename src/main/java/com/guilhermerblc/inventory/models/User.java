@@ -1,7 +1,10 @@
 package com.guilhermerblc.inventory.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,6 +16,9 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties("authorities")
 @Entity(name = "tb_user")
 public class User implements UserDetails {
 
@@ -36,7 +42,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Status status = Status.DEACTIVE;
 
-    @OneToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     private List<Permission> permissions;
 
     @Column(nullable = false, updatable = false)

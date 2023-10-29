@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(entity.getRole());
         user.setPermissions(entity.getPermissions());
         user.setUsername(entity.getUsername());
+        user.setStatus(entity.getStatus());
         user.setPassword(passwordEncoder.encode(entity.getPassword()));
         user.setModified(LocalDateTime.now());
 
