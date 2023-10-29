@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +49,11 @@ public class ProductInputControllerTests {
 
         SigningRequest signingRequest = new SigningRequest("gerente", "1234");
 
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
+        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(
+                signingUrl,
+                signingRequest,
+                JwtAuthenticationResponse.class
+        );
 
         assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseAuth.getBody()).isNotNull();
@@ -99,7 +104,11 @@ public class ProductInputControllerTests {
             request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
             return execution.execute(request, body);
         })));
-        ResponseEntity<ProductInput> responseProduct = restTemplate.postForEntity(requestUrl, productInputRequest, ProductInput.class);
+        ResponseEntity<ProductInput> responseProduct = restTemplate.postForEntity(
+                requestUrl,
+                productInputRequest,
+                ProductInput.class
+        );
 
         // Assert
         assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -165,7 +174,12 @@ public class ProductInputControllerTests {
         headers.setBearerAuth(authenticationToken);
 
         HttpEntity<ProductInput> httpEntity = new HttpEntity<ProductInput>(productInputRequest, headers);
-        ResponseEntity<ProductInput> responseProduct = restTemplate.exchange(productUrl, HttpMethod.PUT, httpEntity, ProductInput.class);
+        ResponseEntity<ProductInput> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                ProductInput.class
+        );
 
         // Assert
         assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -288,5 +302,70 @@ public class ProductInputControllerTests {
         // assertThat(responseProduct.getBody().getPurchaseDate()).isEqualTo(productInputRequest.getPurchaseDate());
         assertThat(responseProduct.getBody().getObservations()).isEqualTo(productInputRequest.getObservations());
     }
+
+
+    @Test
+    void productInputShouldBeDeleted() throws Exception {
+        // Arrange
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product product = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        product = productRepository.save(product);
+
+
+        ProductInput productInputRequest = new ProductInput(
+                null,
+                product,
+                "123456789",
+                "José Fazendeiro",
+                BigDecimal.valueOf(560.30),
+                LocalDateTime.now(),
+                20L,
+                "Frutas frescas.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        productInputRequest = productInputRepository.save(productInputRequest);
+
+        String productUrl = "http://localhost:" + port + urlPath + "/" + productInputRequest.getId();
+
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<ProductInput> httpEntity = new HttpEntity<ProductInput>(productInputRequest, headers);
+        ResponseEntity<ProductInput> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.DELETE,
+                httpEntity,
+                ProductInput.class
+        );
+
+        Optional<ProductInput> databaseProductInput = productInputRepository.findById(productInputRequest.getId());
+
+        // Assert
+        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseProduct.getBody()).isNull();
+
+        assertThat(databaseProductInput.isPresent()).isFalse();
+    }
+
 
 }

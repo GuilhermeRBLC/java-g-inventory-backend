@@ -1,9 +1,6 @@
 package com.guilhermerblc.inventory;
 
-import com.guilhermerblc.inventory.models.Permission;
-import com.guilhermerblc.inventory.models.ProductOutput;
-import com.guilhermerblc.inventory.models.Status;
-import com.guilhermerblc.inventory.models.User;
+import com.guilhermerblc.inventory.models.*;
 import com.guilhermerblc.inventory.repository.PermissionRepository;
 import com.guilhermerblc.inventory.repository.UserRepository;
 import com.guilhermerblc.inventory.service.request.SigningRequest;
@@ -259,6 +256,52 @@ public class UserControllerTests {
 
         assertThat(response.getBody().getCreated()).isNotNull();
         assertThat(response.getBody().getModified()).isNull();
+    }
+
+    @Test
+    void userShouldBeDeleted() throws Exception {
+        // Arrange
+
+        List<Permission> permissionsList = permissionRepository.findAll();
+
+        User requestObject = new User(
+                null,
+                "Novo Usuário",
+                "Estoquista",
+                "del.estoquista",
+                "987654",
+                Status.ACTIVE,
+                permissionsList,
+                LocalDateTime.now(),
+                null
+        );
+        requestObject = userRepository.save(requestObject);
+
+        String productUrl = "http://localhost:" + port + urlPath + "/" + requestObject.getId();
+
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<User> httpEntity = new HttpEntity<>(requestObject, headers);
+        ResponseEntity<User> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.DELETE,
+                httpEntity,
+                User.class
+        );
+
+        Optional<User> databaseUser = userRepository.findById(requestObject.getId());
+
+        // Assert
+        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseProduct.getBody()).isNull();
+
+        assertThat(databaseUser.isPresent()).isFalse();
     }
 
 }

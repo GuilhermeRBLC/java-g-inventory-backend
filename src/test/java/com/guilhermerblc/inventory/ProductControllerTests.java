@@ -14,10 +14,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +40,11 @@ public class ProductControllerTests {
 
         SigningRequest signingRequest = new SigningRequest("gerente", "1234");
 
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
+        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(
+                signingUrl,
+                signingRequest,
+                JwtAuthenticationResponse.class
+        );
 
         assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseAuth.getBody()).isNotNull();
@@ -55,7 +56,17 @@ public class ProductControllerTests {
     void productShouldBeCreated() throws Exception {
         // Arrange
         String productUrl = "http://localhost:" + port + urlPath;
-        Product productRequest = new Product(null, "Morango", "fruta", 5, 10, "Uma fruta vermelha.", null, null, null);
+        Product productRequest = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                null,
+                null,
+                null
+        );
 
         String authenticationToken = authenticate();
 
@@ -64,7 +75,11 @@ public class ProductControllerTests {
             request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
             return execution.execute(request, body);
         })));
-        ResponseEntity<Product> responseProduct = restTemplate.postForEntity(productUrl, productRequest, Product.class);
+        ResponseEntity<Product> responseProduct = restTemplate.postForEntity(
+                productUrl,
+                productRequest,
+                Product.class
+        );
 
         // Assert
         assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -81,7 +96,17 @@ public class ProductControllerTests {
         // Arrange
         User user = userRepository.findByUsername("gerente").orElseThrow();
 
-        Product productRequest = new Product(null, "Morango", "fruta", 5, 10, "Uma fruta vermelha.", user, LocalDateTime.now(), null);
+        Product productRequest = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
         productRequest = productRepository.save(productRequest);
 
         productRequest.setDescription("Morango modificado");
@@ -101,7 +126,12 @@ public class ProductControllerTests {
         headers.setBearerAuth(authenticationToken);
 
         HttpEntity<Product> httpEntity = new HttpEntity<Product>(productRequest, headers);
-        ResponseEntity<Product> responseProduct = restTemplate.exchange(productUrl, HttpMethod.PUT, httpEntity, Product.class);
+        ResponseEntity<Product> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Product.class
+        );
 
         // Assert
         assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -193,6 +223,51 @@ public class ProductControllerTests {
         assertThat(responseProduct.getBody().getInventoryMaximum()).isEqualTo(productRequest.getInventoryMaximum());
         assertThat(responseProduct.getBody().getInventoryMinimum()).isEqualTo(productRequest.getInventoryMinimum());
         assertThat(responseProduct.getBody().getObservations()).isEqualTo(productRequest.getObservations());
+    }
+
+    @Test
+    void productShouldBeDeleted() throws Exception {
+        // Arrange
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product productRequest = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+        productRequest = productRepository.save(productRequest);
+
+        String productUrl = "http://localhost:" + port + urlPath + "/" + productRequest.getId();
+
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Product> httpEntity = new HttpEntity<>(productRequest, headers);
+        ResponseEntity<Product> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.DELETE,
+                httpEntity,
+                Product.class
+        );
+
+        Optional<Product> databaseProduct = productRepository.findById(productRequest.getId());
+
+        // Assert
+        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseProduct.getBody()).isNull();
+
+        assertThat(databaseProduct.isPresent()).isFalse();
     }
 
 }

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -291,6 +292,71 @@ public class ProductOutputControllerTests {
         assertThat(responseProduct.getBody().getSaleValue()).isEqualTo(productOutputRequest.getSaleValue());
         // assertThat(responseProduct.getBody().getSaleDate()).isEqualTo(productOutputRequest.getSaleDate());
         assertThat(responseProduct.getBody().getObservations()).isEqualTo(productOutputRequest.getObservations());
+    }
+
+    @Test
+    void productOutputShouldBeDeleted() throws Exception {
+        // Arrange
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product product = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        product = productRepository.save(product);
+
+
+        ProductOutput productOutputRequest = new ProductOutput(
+                null,
+                product,
+                "123456789",
+                "Marcos Feirante",
+                BigDecimal.valueOf(560.30),
+                LocalDateTime.now(),
+                10L,
+                "Frutas frescas.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        productOutputRequest = productOutputRepository.save(productOutputRequest);
+
+        String productUrl = "http://localhost:" + port + urlPath + "/" + productOutputRequest.getId();
+
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<ProductOutput> httpEntity = new HttpEntity<>(productOutputRequest, headers);
+        ResponseEntity<ProductOutput> responseProduct = restTemplate.exchange(
+                productUrl,
+                HttpMethod.DELETE,
+                httpEntity,
+                ProductOutput.class
+        );
+
+        Optional<ProductOutput> databaseProductOutput = productOutputRepository.findById(productOutputRequest.getId());
+
+
+        // Assert
+        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseProduct.getBody()).isNull();
+
+        assertThat(databaseProductOutput.isPresent()).isFalse();
+
     }
 
 
