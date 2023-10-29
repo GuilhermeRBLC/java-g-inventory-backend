@@ -24,5 +24,7 @@ Sistema de controle de estoque.
 - [x] Configurar JWT
 - [x] Configurar CORS
 - [x] Criar crud de configurações
-- [ ] Criar testes
+- [x] Criar testes
+- [ ] Implementar notificações por e-mail
+- [ ] Implementar a geração de relatório
 - [ ] Testar no Postman/Swagger
