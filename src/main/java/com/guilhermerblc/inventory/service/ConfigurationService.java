@@ -10,10 +10,6 @@ public interface ConfigurationService {
 
     Configuration findById(Long id);
 
-    Configuration crate(Configuration entity);
-
     Configuration update(Long id, Configuration entity);
-
-    void delete(Long id);
 
 }

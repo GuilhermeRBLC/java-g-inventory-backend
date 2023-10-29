@@ -19,6 +19,7 @@ public class ConfigurationController {
 
     private final ConfigurationService service;
 
+    @GetMapping
     public ResponseEntity<List<Configuration>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
@@ -28,20 +29,9 @@ public class ConfigurationController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<Configuration> create(@RequestBody Configuration body) {
-        return ResponseEntity.ok(service.crate(body));
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<Configuration> update(@PathVariable Long id, @RequestBody Configuration body) {
         return ResponseEntity.ok(service.update(id, body));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
     }
 
 }

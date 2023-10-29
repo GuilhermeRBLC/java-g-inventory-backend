@@ -26,25 +26,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public Configuration crate(Configuration entity) {
-        entity.setCreated(LocalDateTime.now());
-        entity.setModified(null);
-        return repository.save(entity);
-    }
-
-    @Override
     public Configuration update(Long id, Configuration entity) {
         Configuration configuration = findById(id);
 
-        configuration.setName(entity.getName());
         configuration.setData(entity.getData());
         configuration.setModified(LocalDateTime.now());
 
         return repository.save(configuration);
     }
 
-    @Override
-    public void delete(Long id) {
-        repository.deleteById(id);
-    }
 }
