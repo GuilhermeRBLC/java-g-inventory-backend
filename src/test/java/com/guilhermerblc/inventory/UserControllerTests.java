@@ -48,7 +48,6 @@ public class UserControllerTests {
         return responseAuth.getBody().getToken();
     }
 
-
     @Test
     void gerenteUserShouldExist() throws Exception {
         // Arrange
