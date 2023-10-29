@@ -197,12 +197,12 @@ public class UserControllerTests {
             request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
             return execution.execute(request, body);
         })));
-        ResponseEntity<List> responseProduct = restTemplate.getForEntity(requestUrl, List.class);
+        ResponseEntity<List> response = restTemplate.getForEntity(requestUrl, List.class);
 
         // Assert
-        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseProduct.getBody()).isNotNull();
-        assertThat(responseProduct.getBody().size()).isEqualTo(userList.size());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().size()).isEqualTo(userList.size());
 
     }
 
@@ -287,7 +287,7 @@ public class UserControllerTests {
         headers.setBearerAuth(authenticationToken);
 
         HttpEntity<User> httpEntity = new HttpEntity<>(requestObject, headers);
-        ResponseEntity<User> responseProduct = restTemplate.exchange(
+        ResponseEntity<User> response = restTemplate.exchange(
                 productUrl,
                 HttpMethod.DELETE,
                 httpEntity,
@@ -297,8 +297,8 @@ public class UserControllerTests {
         Optional<User> databaseUser = userRepository.findById(requestObject.getId());
 
         // Assert
-        assertThat(responseProduct.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(responseProduct.getBody()).isNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isNull();
 
         assertThat(databaseUser.isPresent()).isFalse();
     }
