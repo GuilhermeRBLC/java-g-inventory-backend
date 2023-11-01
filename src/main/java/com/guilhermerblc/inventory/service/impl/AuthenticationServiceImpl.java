@@ -6,6 +6,7 @@ import com.guilhermerblc.inventory.service.AuthenticationService;
 import com.guilhermerblc.inventory.service.JwtService;
 import com.guilhermerblc.inventory.service.request.SigningRequest;
 import com.guilhermerblc.inventory.service.response.JwtAuthenticationResponse;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
 
     @Override
+    @Transactional
     public JwtAuthenticationResponse signing(SigningRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
