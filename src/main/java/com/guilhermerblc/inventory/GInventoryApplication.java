@@ -20,6 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @SpringBootApplication
 public class GInventoryApplication {
@@ -81,15 +82,33 @@ public class GInventoryApplication {
 				new Configuration(null, "ALERT_EMAIL", "admin@mail.com", LocalDateTime.now(), null)
 			));
 
-			User defaultUser = new User();
-			defaultUser.setName("Default 1234");
-			defaultUser.setRole("Gerente");
-			defaultUser.setStatus(Status.ACTIVE);
-			defaultUser.setUsername("gerente");
-			defaultUser.setPassword(passwordEncoder.encode("1234"));
-			defaultUser.setCreated(LocalDateTime.now());
-			defaultUser.setPermissions(permissionRepository.findAll());
+			User defaultUser = new User(
+					null,
+					"Default 1234",
+					"Gerente",
+					"gerente",
+					passwordEncoder.encode("1234"),
+					Status.ACTIVE,
+					permissionRepository.findAll(),
+					LocalDateTime.now(),
+					null
+			);
 			userRepository.save(defaultUser);
+
+			Set<Long> limitedPermissions = Set.of(1L, 4L, 7L, 10L);
+			User limitedUser = new User(
+					null,
+					"Limitado",
+					"Estagiario",
+					"limitado",
+					passwordEncoder.encode("4321"),
+					Status.ACTIVE,
+					permissionRepository.findAll().stream().filter( a -> limitedPermissions.contains(a.getId()) ).toList(),
+					LocalDateTime.now(),
+					null
+			);
+			userRepository.save(limitedUser);
+
 		};
 	}
 

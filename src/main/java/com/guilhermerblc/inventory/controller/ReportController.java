@@ -5,6 +5,7 @@ import com.guilhermerblc.inventory.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@Secured("GENERATE_REPORTS")
+@PreAuthorize("hasAuthority('GENERATE_REPORTS')")
 @RequestMapping("/api/v1/report")
 public class ReportController {
 

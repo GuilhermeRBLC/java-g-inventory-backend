@@ -4,6 +4,7 @@ import com.guilhermerblc.inventory.models.Permission;
 import com.guilhermerblc.inventory.service.PermissionService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
+@PreAuthorize("isAuthenticated()")
 @RequestMapping("/api/v1/permission")
 public class PermissionController {
 
