@@ -15,7 +15,7 @@ public class SwaggerConfiguration {
     public OpenAPI openAPI() {
         return new OpenAPI().addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("G Inventory API").description("API do sistema de gerenciamento de estoque."));
+                .info(new Info().title("G Inventory API").description("Inventory management system API."));
     }
 
     private SecurityScheme createAPIKeyScheme() {
