@@ -2,6 +2,7 @@ package com.guilhermerblc.inventory.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,11 @@ public class Product {
     private Long id;
 
     @Column(length = 125, nullable = false)
+    @Size(max = 125)
     private String description;
 
     @Column(length = 50, nullable = false)
+    @Size(max = 50)
     private String type;
 
     @Column(name = "inventory_minimum", nullable = false)
@@ -33,11 +36,12 @@ public class Product {
     private int inventoryMaximum;
 
     @Column(length = 1024)
+    @Size(max = 1024)
     private String observations;
 
     @JoinColumn(nullable = false)
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer", "permissions"})
     private User user;
 
     @Column(nullable = false, updatable = false)

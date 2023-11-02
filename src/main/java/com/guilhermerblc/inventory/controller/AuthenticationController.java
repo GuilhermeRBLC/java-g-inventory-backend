@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "Successful authentication, a valid token is generated."),
             @ApiResponse(responseCode = "403", description = "Invalid username or password.")
     })
-    public ResponseEntity<JwtAuthenticationResponse> signing(@RequestBody SigningRequest request) {
+    public ResponseEntity<JwtAuthenticationResponse> signing(@Valid @RequestBody SigningRequest request) {
         return ResponseEntity.ok(authenticationService.signing(request));
     }
 

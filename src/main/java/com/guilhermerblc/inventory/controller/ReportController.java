@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -52,7 +53,7 @@ public class ReportController {
             @ApiResponse(responseCode = "422", description = "Invalid data provided."),
             @ApiResponse(responseCode = "403", description = "The current user has no permission for create a report.")
     })
-    public ResponseEntity<Report> create(@RequestBody Report body) {
+    public ResponseEntity<Report> create(@Valid @RequestBody Report body) {
         return ResponseEntity.ok(service.crate(body));
     }
 
@@ -64,7 +65,7 @@ public class ReportController {
             @ApiResponse(responseCode = "422", description = "Invalid data provided."),
             @ApiResponse(responseCode = "403", description = "The current user has no permission for update the report.")
     })
-    public ResponseEntity<Report> update(@PathVariable Long id, @RequestBody Report body) {
+    public ResponseEntity<Report> update(@PathVariable Long id, @Valid @RequestBody Report body) {
         return ResponseEntity.ok(service.update(id, body));
     }
 

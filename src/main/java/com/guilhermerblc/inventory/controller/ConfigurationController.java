@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -55,7 +56,7 @@ public class ConfigurationController {
             @ApiResponse(responseCode = "422", description = "Invalid data provided."),
             @ApiResponse(responseCode = "403", description = "The current user has no permission for update the configuration.")
     })
-    public ResponseEntity<Configuration> update(@PathVariable Long id, @RequestBody Configuration body) {
+    public ResponseEntity<Configuration> update(@PathVariable Long id, @Valid @RequestBody Configuration body) {
         return ResponseEntity.ok(service.update(id, body));
     }
 

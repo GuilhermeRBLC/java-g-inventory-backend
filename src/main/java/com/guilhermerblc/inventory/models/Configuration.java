@@ -1,6 +1,7 @@
 package com.guilhermerblc.inventory.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,9 +21,11 @@ public class Configuration {
     private Long id;
 
     @Column(unique = true, length = 20, nullable = false)
+    @Size(max = 20)
     private String name;
 
     @Column(length = 1024, nullable = false)
+    @Size(max = 1024)
     private String data;
 
     @Column(nullable = false, updatable = false)

@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory.service.impl;
 
+import com.guilhermerblc.inventory.exceptions.IdentificationNotEqualsException;
 import com.guilhermerblc.inventory.models.Product;
 import com.guilhermerblc.inventory.models.User;
 import com.guilhermerblc.inventory.repository.ProductRepository;
@@ -43,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = findById(id);
 
         if(!product.getId().equals(entity.getId())) {
-            throw new RuntimeException("Update IDs must be the same.");
+            throw new IdentificationNotEqualsException("Update IDs must be the same.");
         }
 
         User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

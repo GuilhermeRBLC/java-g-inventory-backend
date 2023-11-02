@@ -1,10 +1,10 @@
 package com.guilhermerblc.inventory.service.impl;
 
+import com.guilhermerblc.inventory.exceptions.IdentificationNotEqualsException;
 import com.guilhermerblc.inventory.models.User;
 import com.guilhermerblc.inventory.repository.UserRepository;
 import com.guilhermerblc.inventory.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
 
         if(!user.getId().equals(entity.getId())) {
-            throw new RuntimeException("Update IDs must be the same.");
+            throw new IdentificationNotEqualsException("Update IDs must be the same.");
         }
 
         user.setName(entity.getName());

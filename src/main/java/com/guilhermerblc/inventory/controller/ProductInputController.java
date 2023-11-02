@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -54,7 +55,7 @@ public class ProductInputController {
             @ApiResponse(responseCode = "422", description = "Invalid data provided."),
             @ApiResponse(responseCode = "403", description = "The current user has no permission for create a input.")
     })
-    public ResponseEntity<ProductInput> create(@RequestBody ProductInput body) {
+    public ResponseEntity<ProductInput> create(@Valid @RequestBody ProductInput body) {
         return ResponseEntity.ok(service.crate(body));
     }
 
@@ -67,7 +68,7 @@ public class ProductInputController {
             @ApiResponse(responseCode = "422", description = "Invalid data provided."),
             @ApiResponse(responseCode = "403", description = "The current user has no permission for update the input.")
     })
-    public ResponseEntity<ProductInput> update(@PathVariable Long id, @RequestBody ProductInput body) {
+    public ResponseEntity<ProductInput> update(@PathVariable Long id, @Valid @RequestBody ProductInput body) {
         return ResponseEntity.ok(service.update(id, body));
     }
 

@@ -2,6 +2,7 @@ package com.guilhermerblc.inventory.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,9 +28,11 @@ public class ProductOutput {
     private Product product;
 
     @Column(length = 20, nullable = false)
+    @Size(max = 20)
     private String barcode;
 
     @Column(length = 125, nullable = false)
+    @Size(max = 125)
     private String buyer;
 
     @Column(name = "sale_value", precision = 10, scale = 2, nullable = false)
@@ -42,11 +45,12 @@ public class ProductOutput {
     private Long quantity;
 
     @Column(length = 1024)
+    @Size(max = 1024)
     private String observations;
 
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer"})
+    @JsonIgnoreProperties({"authorities", "hibernateLazyInitializer", "permissions"})
     private User user;
 
     @Column(nullable = false, updatable = false)

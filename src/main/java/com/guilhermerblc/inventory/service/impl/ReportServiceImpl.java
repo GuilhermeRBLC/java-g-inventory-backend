@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory.service.impl;
 
+import com.guilhermerblc.inventory.exceptions.IdentificationNotEqualsException;
 import com.guilhermerblc.inventory.models.Report;
 import com.guilhermerblc.inventory.repository.ReportRepository;
 import com.guilhermerblc.inventory.service.ReportService;
@@ -38,7 +39,7 @@ public class ReportServiceImpl implements ReportService {
         Report report = findById(id);
 
         if(!report.getId().equals(entity.getId())) {
-            throw new RuntimeException("Update IDs must be the same.");
+            throw new IdentificationNotEqualsException("Update IDs must be the same.");
         }
 
         report.setDescription(entity.getDescription());

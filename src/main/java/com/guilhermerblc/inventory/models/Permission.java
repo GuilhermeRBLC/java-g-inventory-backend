@@ -1,6 +1,7 @@
 package com.guilhermerblc.inventory.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class Permission {
     private Long id;
 
     @Column(unique = true, length = 19)
+    @Size(max = 19)
     private String description;
 
     @Column(nullable = false, updatable = false)
