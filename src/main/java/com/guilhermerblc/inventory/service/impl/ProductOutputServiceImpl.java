@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -29,7 +30,7 @@ public class ProductOutputServiceImpl implements ProductOutputService {
 
     @Override
     public ProductOutput findById(Long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -44,6 +45,11 @@ public class ProductOutputServiceImpl implements ProductOutputService {
     @Override
     public ProductOutput update(Long id, ProductOutput entity) {
         ProductOutput productOutput = findById(id);
+
+        if(!productOutput.getId().equals(entity.getId())) {
+            throw new RuntimeException("Update IDs must be the same.");
+        }
+
         User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         productOutput.setProduct(entity.getProduct());

@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties("authorities")
+@JsonIgnoreProperties({"authorities", "password"})
 @Entity(name = "tb_user")
 public class User implements UserDetails {
 

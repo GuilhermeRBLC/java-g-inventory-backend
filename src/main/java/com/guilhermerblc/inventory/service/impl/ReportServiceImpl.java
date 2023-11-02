@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Report findById(Long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -35,6 +36,10 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Report update(Long id, Report entity) {
         Report report = findById(id);
+
+        if(!report.getId().equals(entity.getId())) {
+            throw new RuntimeException("Update IDs must be the same.");
+        }
 
         report.setDescription(entity.getDescription());
         report.setFilters(entity.getFilters());

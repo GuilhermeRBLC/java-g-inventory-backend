@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findById(Long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -40,6 +41,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product update(Long id, Product entity) {
         Product product = findById(id);
+
+        if(!product.getId().equals(entity.getId())) {
+            throw new RuntimeException("Update IDs must be the same.");
+        }
+
         User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         product.setDescription(entity.getDescription());
