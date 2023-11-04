@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,6 +51,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(CredentialsExpiredException.class)
     protected ResponseEntity<ApiError> handleCredentialsExpiredException(CredentialsExpiredException ex) {
         return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, "Credential expired.", ex));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    protected ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex) {
+        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, "Invalid username or password.", ex));
     }
 
     private ResponseEntity<ApiError> buildResponseEntity(ApiError apiError) {

@@ -1,6 +1,7 @@
 package com.guilhermerblc.inventory.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class ApiError {
         this.debugMessage = ex.getLocalizedMessage();
     }
 
+    @JsonIgnore
     public String getJson() {
         return "{ \"status\": \"" +
                 status.value() + "\", \"message\": \"" +

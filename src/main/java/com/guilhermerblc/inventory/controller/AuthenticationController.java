@@ -26,7 +26,7 @@ public class AuthenticationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful authentication, a valid token is generated."),
             @ApiResponse(responseCode = "403", description = "Invalid username or password."),
-            @ApiResponse(responseCode = "400", description = "Some other error has ocurrend on authentication phase.")
+            @ApiResponse(responseCode = "400", description = "Some other error has occurred on authentication phase.")
     })
     public ResponseEntity<JwtAuthenticationResponse> signing(@Valid @RequestBody SigningRequest request) {
         return ResponseEntity.ok(authenticationService.signing(request));
