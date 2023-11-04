@@ -35,7 +35,8 @@ public class ProductController {
     @Operation(summary = "Get all products data.", description = "Retrieves all stored products.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all products available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<Product>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -47,7 +48,8 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested product data."),
             @ApiResponse(responseCode = "404", description = "The requested product is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Product> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -58,8 +60,9 @@ public class ProductController {
     @Operation(summary = "Creates a new product.", description = "Creates a new product using the provided data.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product created successfully."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a product.")
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a product."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Product> create(@Valid @RequestBody Product body) {
         return ResponseEntity.ok(service.crate(body));
@@ -71,8 +74,10 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product update successfully."),
             @ApiResponse(responseCode = "404", description = "The requested product is not found."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the product.")
+            @ApiResponse(responseCode = "422", description = "IDs must be the same in path and body."),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the product."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Product> update(@PathVariable Long id, @Valid @RequestBody Product body) {
         return ResponseEntity.ok(service.update(id, body));
@@ -84,7 +89,8 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product deleted successfully."),
             @ApiResponse(responseCode = "404", description = "The requested product is not found."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the product.")
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the product."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
@@ -97,7 +103,8 @@ public class ProductController {
     @Operation(summary = "Get all inputs data of a product.", description = "Retrieves all inputs for a product specified by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all inputs for a product."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<ProductInput>> findAllInput(@PathVariable Long id) {
         return ResponseEntity.ok(productInputService.findByProductId(id));
@@ -108,7 +115,8 @@ public class ProductController {
     @Operation(summary = "Get all output data of a product.", description = "Retrieves all output for a product specified by its ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all output for a product."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<ProductOutput>> findAllOutputs(@PathVariable Long id) {
         return ResponseEntity.ok(productOutputService.findByProductId(id));

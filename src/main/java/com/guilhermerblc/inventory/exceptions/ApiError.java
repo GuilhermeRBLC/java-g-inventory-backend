@@ -21,11 +21,19 @@ public class ApiError {
         timestamp = LocalDateTime.now();
     }
 
-    ApiError(HttpStatus status, String message, Throwable ex) {
+    public ApiError(HttpStatus status, String message, Throwable ex) {
         this();
         this.status = status;
         this.message = message;
         this.debugMessage = ex.getLocalizedMessage();
+    }
+
+    public String getJson() {
+        return "{ \"status\": \"" +
+                status.value() + "\", \"message\": \"" +
+                message + "\", \"timestamp\": \"" +
+                timestamp + "\", \"debugMessage\": \"" +
+                debugMessage + "\" }";
     }
 
 }

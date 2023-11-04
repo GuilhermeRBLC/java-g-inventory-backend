@@ -3,11 +3,16 @@ package com.guilhermerblc.inventory.exceptions;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.NoSuchElementException;
@@ -36,9 +41,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new ApiError(HttpStatus.UNPROCESSABLE_ENTITY, "Some arguments has invalid data.", ex));
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    protected ResponseEntity<ApiError> handleExpiredJwtException(ExpiredJwtException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, "Token expired.", ex));
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Invalid data.", ex);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(CredentialsExpiredException.class)
+    protected ResponseEntity<ApiError> handleCredentialsExpiredException(CredentialsExpiredException ex) {
+        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, "Credential expired.", ex));
     }
 
     private ResponseEntity<ApiError> buildResponseEntity(ApiError apiError) {

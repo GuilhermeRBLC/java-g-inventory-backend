@@ -29,7 +29,8 @@ public class UserController {
     @Operation(summary = "Get all users data.", description = "Retrieves all stored users.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all users available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<User>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -41,7 +42,8 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested user data."),
             @ApiResponse(responseCode = "404", description = "The requested user is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<User> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -52,8 +54,9 @@ public class UserController {
     @Operation(summary = "Creates a new user.", description = "Creates a new user using the provided data.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User created successfully."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a user.")
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a user."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<User> create(@Valid @RequestBody User body) {
         return ResponseEntity.ok(service.crate(body));
@@ -65,8 +68,10 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully."),
             @ApiResponse(responseCode = "404", description = "The requested user is not found."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the user.")
+            @ApiResponse(responseCode = "422", description = "IDs must be the same in path and body."),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the user."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User body) {
         return ResponseEntity.ok(service.update(id, body));
@@ -78,7 +83,8 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User deleted successfully."),
             @ApiResponse(responseCode = "404", description = "The requested user is not found."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the user.")
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the user."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

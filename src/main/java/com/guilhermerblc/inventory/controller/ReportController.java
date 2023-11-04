@@ -29,7 +29,8 @@ public class ReportController {
     @Operation(summary = "Get all reports data.", description = "Retrieves all stored reports.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all reports available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<Report>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -40,7 +41,8 @@ public class ReportController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested report data."),
             @ApiResponse(responseCode = "404", description = "The requested report is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Report> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -50,8 +52,9 @@ public class ReportController {
     @Operation(summary = "Creates a new report.", description = "Creates a new report using the provided data.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Report created successfully."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a report.")
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a report."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Report> create(@Valid @RequestBody Report body) {
         return ResponseEntity.ok(service.crate(body));
@@ -62,8 +65,10 @@ public class ReportController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Report updated successfully."),
             @ApiResponse(responseCode = "404", description = "The requested report is not found."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the report.")
+            @ApiResponse(responseCode = "422", description = "IDs must be the same in path and body."),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the report."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Report> update(@PathVariable Long id, @Valid @RequestBody Report body) {
         return ResponseEntity.ok(service.update(id, body));
@@ -74,7 +79,8 @@ public class ReportController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Report deleted successfully."),
             @ApiResponse(responseCode = "404", description = "The requested report is not found."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the report.")
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the report."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

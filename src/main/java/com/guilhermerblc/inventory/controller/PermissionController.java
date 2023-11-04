@@ -27,7 +27,8 @@ public class PermissionController {
     @Operation(summary = "Get all permissions data.", description = "Retrieves all stored permissions.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all permissions data available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<Permission>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -38,7 +39,8 @@ public class PermissionController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested permission data."),
             @ApiResponse(responseCode = "404", description = "The requested permission is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Permission> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));

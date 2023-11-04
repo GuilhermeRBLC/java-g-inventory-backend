@@ -41,7 +41,9 @@ public class User implements UserDetails {
     @Size(max = 20)
     private String username;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    // @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    // TODO: Está ocorrendo um erro por conta de não deixar a senha ser retornada na api,
+    // diz que o rawPassword não pode ser null, vou deiar comentado até que volte a internet e eu possa pesquisar.
     @Column(length = 125, nullable = false)
     @Size(max = 125)
     private String password;

@@ -29,7 +29,8 @@ public class ProductInputController {
     @Operation(summary = "Get all product inputs data.", description = "Retrieves all stored inputs.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all inputs available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<ProductInput>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -41,7 +42,8 @@ public class ProductInputController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested input data."),
             @ApiResponse(responseCode = "404", description = "The requested input is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<ProductInput> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -52,8 +54,9 @@ public class ProductInputController {
     @Operation(summary = "Creates a new product input.", description = "Creates a new input using the provided data.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Input created successfully."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a input.")
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for create a input."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<ProductInput> create(@Valid @RequestBody ProductInput body) {
         return ResponseEntity.ok(service.crate(body));
@@ -65,8 +68,10 @@ public class ProductInputController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Input updated successfully."),
             @ApiResponse(responseCode = "404", description = "The requested input is not found."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the input.")
+            @ApiResponse(responseCode = "422", description = "IDs must be the same in path and body."),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the input."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<ProductInput> update(@PathVariable Long id, @Valid @RequestBody ProductInput body) {
         return ResponseEntity.ok(service.update(id, body));
@@ -78,7 +83,8 @@ public class ProductInputController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Input deleted successfully."),
             @ApiResponse(responseCode = "404", description = "The requested input is not found."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the input.")
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for delete the input."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

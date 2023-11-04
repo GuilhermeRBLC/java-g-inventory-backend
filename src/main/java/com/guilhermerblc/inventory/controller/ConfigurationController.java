@@ -30,7 +30,8 @@ public class ConfigurationController {
     @Operation(summary = "Get all configurations data.", description = "Retrieves all stored configurations data. Currently the company name, logo, and email for notification.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all configurations data available."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<List<Configuration>> findAll() {
         return ResponseEntity.ok(service.findAll());
@@ -41,7 +42,8 @@ public class ConfigurationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested configuration data."),
             @ApiResponse(responseCode = "404", description = "The requested configuration is not found."),
-            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource.")
+            @ApiResponse(responseCode = "403", description = "You should be authenticated to access this resource."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Configuration> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -53,8 +55,10 @@ public class ConfigurationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Configuration update successfully."),
             @ApiResponse(responseCode = "404", description = "The requested configuration is not found."),
-            @ApiResponse(responseCode = "422", description = "Invalid data provided."),
-            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the configuration.")
+            @ApiResponse(responseCode = "422", description = "IDs must be the same in path and body."),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided."),
+            @ApiResponse(responseCode = "403", description = "The current user has no permission for update the configuration."),
+            @ApiResponse(responseCode = "401", description = "Token expired.")
     })
     public ResponseEntity<Configuration> update(@PathVariable Long id, @Valid @RequestBody Configuration body) {
         return ResponseEntity.ok(service.update(id, body));
