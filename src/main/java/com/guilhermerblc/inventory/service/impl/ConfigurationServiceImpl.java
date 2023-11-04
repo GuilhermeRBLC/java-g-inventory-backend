@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory.service.impl;
 
+import com.guilhermerblc.inventory.exceptions.IdentificationNotEqualsException;
 import com.guilhermerblc.inventory.models.Configuration;
 import com.guilhermerblc.inventory.repository.ConfigurationRepository;
 import com.guilhermerblc.inventory.service.ConfigurationService;
@@ -35,7 +36,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Configuration configuration = findById(id);
 
         if(!configuration.getId().equals(entity.getId())) {
-            throw new RuntimeException("Update IDs must be the same.");
+            throw new IdentificationNotEqualsException("Update IDs must be the same.");
         }
 
         configuration.setData(entity.getData());

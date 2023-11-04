@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory;
 
+import com.guilhermerblc.inventory.exceptions.ApiError;
 import com.guilhermerblc.inventory.models.Configuration;
 import com.guilhermerblc.inventory.repository.ConfigurationRepository;
 import com.guilhermerblc.inventory.service.request.SigningRequest;
@@ -29,7 +30,7 @@ public class ConfigurationControllerTests {
 
     private final String urlPath = "/api/v1/configuration";
 
-    String authenticate() throws Exception {
+    String authenticate() {
         String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
 
         SigningRequest signingRequest = new SigningRequest("gerente", "1234");
@@ -41,6 +42,21 @@ public class ConfigurationControllerTests {
 
         return responseAuth.getBody().getToken();
     }
+
+    String authenticateLowPermissions() {
+        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
+
+        SigningRequest signingRequest = new SigningRequest("limitado", "4321");
+
+        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
+
+        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseAuth.getBody()).isNotNull();
+
+        return responseAuth.getBody().getToken();
+    }
+
+    // Success tests.
 
     @Test
     void configurationShouldListAll() throws Exception {
@@ -125,6 +141,140 @@ public class ConfigurationControllerTests {
         assertThat(response.getBody().getName()).isEqualTo(configuration.getName());
         assertThat(response.getBody().getData()).isEqualTo(configuration.getData());
         assertThat(response.getBody().getCreated()).isNotNull();
+    }
+
+
+    @Test
+    void configurationShouldFailToListAll_DueLackOfAuthentication() throws Exception {
+        // Arrange
+        List<Configuration> configurationList = configurationRepository.findAll();
+        Set<String> nameList = Set.of(
+                "COMPANY_NAME", "COMPANY_LOGO", "ALERT_EMAIL"
+        );
+        String requestUrl = "http://localhost:" + port + urlPath;
+
+        // Act
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNull();
+        //assertThat(response.getBody().toString().contains("")).isTrue();
+
+    }
+
+    // Fail tests
+
+    @Test
+    void configurationShouldFailToGetOne_DueToID() throws Exception {
+        // Arrange
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/5";
+        String authenticationToken = authenticate();
+
+        // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
+            return execution.execute(request, body);
+        })));
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Item not found.")).isTrue();
+    }
+
+    @Test
+    void configurationShouldNotUpdate_DueInvalidData() throws Exception {
+        // Arrange
+        Configuration configuration = configurationRepository.findById(1L).orElseThrow();
+
+        configuration.setData("Large Than 1024 characters".repeat(1024));
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Configuration> httpEntity = new HttpEntity<>(configuration, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Invalid data.")).isTrue();
+    }
+
+    @Test
+    void configurationShouldNotUpdate_DueDifferentIDs() throws Exception {
+        // Arrange
+        Configuration configuration = configurationRepository.findById(1L).orElseThrow();
+
+        configuration.setData("Valid Data!");
+
+        // The ID in path must be the same in object. It should cause a fail.
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + (configuration.getId() + 1);
+        String authenticationToken = authenticate();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Configuration> httpEntity = new HttpEntity<>(configuration, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("IDs must be the same in path and body.")).isTrue();
+    }
+
+    @Test
+    void configurationShouldNotUpdate_DueLackOfPermissionOfUser() throws Exception {
+        // Arrange
+        Configuration configuration = configurationRepository.findById(1L).orElseThrow();
+
+        configuration.setData("Valid Data!");
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
+
+        // The current user should have no permission to update this entity.
+        String authenticationToken = authenticateLowPermissions();
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Configuration> httpEntity = new HttpEntity<>(configuration, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNull();
     }
 
 

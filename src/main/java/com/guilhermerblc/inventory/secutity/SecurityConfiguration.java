@@ -22,9 +22,10 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+// @EnableGlobalMethodSecurity(securedEnabled = true)
+
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
 @AllArgsConstructor
 public class SecurityConfiguration {
 
