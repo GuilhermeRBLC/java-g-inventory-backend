@@ -22,10 +22,11 @@ Sistema de controle de estoque.
 - [x] Criar controllers
 - [x] Configurar banco de dados
 - [x] Configurar JWT
-- [x] Configurar CORS
 - [x] Criar crud de configurações
 - [x] Criar testes
-- [ ] Criar documentação da API
+- [x] Criar documentação da API
+- [x] Configurar CORS
+- [ ] Criar testes em casos de falha
 - [ ] Implementar notificações por e-mail
 - [ ] Implementar a geração de relatório
 - [ ] Testar no Postman/Swagger
