@@ -154,6 +154,10 @@ public class ConfigurationControllerTests {
         String requestUrl = "http://localhost:" + port + urlPath;
 
         // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().remove("Authorization");
+            return execution.execute(request, body);
+        })));
         ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
 
         // Assert

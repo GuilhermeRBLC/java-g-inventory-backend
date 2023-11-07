@@ -26,7 +26,7 @@ public class ConfigurationController {
     private final ConfigurationService service;
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isFullyAuthenticated()")
     @Operation(summary = "Get all configurations data.", description = "Retrieves all stored configurations data. Currently the company name, logo, and email for notification.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieves all configurations data available."),
@@ -38,7 +38,7 @@ public class ConfigurationController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isFullyAuthenticated()")
     @Operation(summary = "Get a configuration by ID.", description = "Return the data of a specific configuration based on it's ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "The requested configuration data."),

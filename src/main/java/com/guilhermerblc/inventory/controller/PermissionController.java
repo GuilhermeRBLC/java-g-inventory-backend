@@ -16,7 +16,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isFullyAuthenticated()")
 @RequestMapping("/api/v1/permission")
 @Tag(name = "Permission Controller", description = "An API retrieves the permissions.")
 public class PermissionController {
