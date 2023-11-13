@@ -1,10 +1,7 @@
 package com.guilhermerblc.inventory;
 
-import com.guilhermerblc.inventory.exceptions.ApiError;
 import com.guilhermerblc.inventory.models.Configuration;
 import com.guilhermerblc.inventory.repository.ConfigurationRepository;
-import com.guilhermerblc.inventory.service.request.SigningRequest;
-import com.guilhermerblc.inventory.service.response.JwtAuthenticationResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,33 +25,10 @@ public class ConfigurationControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private AuthenticationHelper autenticationHelper;
+
     private final String urlPath = "/api/v1/configuration";
-
-    String authenticate() {
-        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
-
-        SigningRequest signingRequest = new SigningRequest("gerente", "1234");
-
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
-
-        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseAuth.getBody()).isNotNull();
-
-        return responseAuth.getBody().getToken();
-    }
-
-    String authenticateLowPermissions() {
-        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
-
-        SigningRequest signingRequest = new SigningRequest("limitado", "4321");
-
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
-
-        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseAuth.getBody()).isNotNull();
-
-        return responseAuth.getBody().getToken();
-    }
 
     // Success tests.
 
@@ -66,7 +40,7 @@ public class ConfigurationControllerTests {
                 "COMPANY_NAME", "COMPANY_LOGO", "ALERT_EMAIL"
         );
         String requestUrl = "http://localhost:" + port + urlPath;
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -94,7 +68,7 @@ public class ConfigurationControllerTests {
         Configuration configuration = configurationRepository.findById(1L).orElseThrow();
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -119,7 +93,7 @@ public class ConfigurationControllerTests {
         configuration.setData("Modificado");
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -174,7 +148,7 @@ public class ConfigurationControllerTests {
         // Arrange
 
         String requestUrl = "http://localhost:" + port + urlPath + "/5";
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -197,7 +171,7 @@ public class ConfigurationControllerTests {
         configuration.setData("Large Than 1024 characters".repeat(1024));
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -228,7 +202,7 @@ public class ConfigurationControllerTests {
 
         // The ID in path must be the same in object. It should cause a fail.
         String requestUrl = "http://localhost:" + port + urlPath + "/" + (configuration.getId() + 1);
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -260,7 +234,7 @@ public class ConfigurationControllerTests {
         String requestUrl = "http://localhost:" + port + urlPath + "/" + configuration.getId();
 
         // The current user should have no permission to update this entity.
-        String authenticationToken = authenticateLowPermissions();
+        String authenticationToken = autenticationHelper.authenticateLowPermissions(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
