@@ -378,7 +378,7 @@ public class ProductInputControllerTests {
     }
 
     @Test
-    void productproductInputShouldNotUpdate_DueInvalidData() throws Exception {
+    void productProductInputShouldNotUpdate_DueInvalidData() throws Exception {
         // Arrange
 
         User user = userRepository.findByUsername("gerente").orElseThrow();

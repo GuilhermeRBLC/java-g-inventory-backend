@@ -19,16 +19,12 @@ import org.springframework.http.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductOutputControllerTests {
-
 
     @LocalServerPort
     private int port;
@@ -45,21 +41,11 @@ public class ProductOutputControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private AuthenticationHelper autenticationHelper;
+
     private final String urlPath = "/api/v1/product-output";
 
-
-    String authenticate() throws Exception {
-        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
-
-        SigningRequest signingRequest = new SigningRequest("gerente", "1234");
-
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
-
-        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseAuth.getBody()).isNotNull();
-
-        return responseAuth.getBody().getToken();
-    }
 
     @Test
     void productOutputShouldBeCreated() throws Exception {
@@ -97,7 +83,7 @@ public class ProductOutputControllerTests {
                 null
         );
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -161,7 +147,7 @@ public class ProductOutputControllerTests {
 
         String productUrl = "http://localhost:" + port + urlPath + "/" + productOutputRequest.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -221,7 +207,7 @@ public class ProductOutputControllerTests {
 
         String productUrl = "http://localhost:" + port + urlPath;
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -275,7 +261,7 @@ public class ProductOutputControllerTests {
         ProductOutput productOutputRequest = productOutputs.get(5);
         String productUrl = "http://localhost:" + port + urlPath + "/" + productOutputRequest.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -332,7 +318,7 @@ public class ProductOutputControllerTests {
 
         String productUrl = "http://localhost:" + port + urlPath + "/" + productOutputRequest.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -359,5 +345,237 @@ public class ProductOutputControllerTests {
 
     }
 
+    // Fail tests
+
+    @Test
+    void productOutputShouldFailToGetOne_DueToInvalidID() throws Exception {
+        // Arrange
+
+        List<ProductOutput> productInputs = productOutputRepository.findAll();
+        Optional<ProductOutput> greatestId = productInputs.stream().max(Comparator.comparing(ProductOutput::getId));
+        long invalidId = 1L;
+        if(greatestId.isPresent()) invalidId = greatestId.get().getId() + 1;
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + invalidId;
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
+            return execution.execute(request, body);
+        })));
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Item not found.")).isTrue();
+    }
+
+    @Test
+    void productOutputInputShouldNotUpdate_DueInvalidData() throws Exception {
+        // Arrange
+
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product product = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        product = productRepository.save(product);
+
+        List<ProductOutput> productOutputs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            productOutputs.add(new ProductOutput(
+                    null,
+                    product,
+                    "123456789",
+                    "José Fazendeiro",
+                    BigDecimal.valueOf(560.30),
+                    LocalDateTime.now(),
+                    20L,
+                    "Frutas frescas.",
+                    user,
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        productOutputs = productOutputRepository.saveAll(productOutputs);
+
+        ProductOutput productOutput = productOutputs.get(0);
+
+        productOutput.setBarcode("Larger than 20 characters".repeat(10));
+        productOutput.setBuyer("Larger than 125 characters".repeat(10));
+        productOutput.setSaleValue(BigDecimal.valueOf(-1.0));
+        productOutput.setQuantity(-1L);
+        productOutput.setObservations("Larger than 1024 characters".repeat(10));
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + productOutput.getId();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<ProductOutput> httpEntity = new HttpEntity<>(productOutput, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Invalid data.")).isTrue();
+    }
+
+    @Test
+    void productOutputShouldNotUpdate_DueDifferentIDs() throws Exception {
+        // Arrange
+
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product product = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        product = productRepository.save(product);
+
+        List<ProductOutput> productOutputs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            productOutputs.add(new ProductOutput(
+                    null,
+                    product,
+                    "123456789",
+                    "José Fazendeiro",
+                    BigDecimal.valueOf(560.30),
+                    LocalDateTime.now(),
+                    20L,
+                    "Frutas frescas.",
+                    user,
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        productOutputs = productOutputRepository.saveAll(productOutputs);
+
+        ProductOutput productOutput = productOutputs.get(0);
+
+        productOutput.setBarcode("Lower than 20 chars");
+        productOutput.setBuyer("Lower than 125 characters");
+        productOutput.setSaleValue(BigDecimal.valueOf(200.0));
+        productOutput.setQuantity(50L);
+        productOutput.setObservations("Lower than 1024 characters");
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + (productOutput.getId() + 1);
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<ProductOutput> httpEntity = new HttpEntity<>(productOutput, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("IDs must be the same in path and body.")).isTrue();
+    }
+
+    @Test
+    void productOutputShouldNotUpdate_DueLackOfPermissionOfUser() throws Exception {
+        // Arrange
+
+        User user = userRepository.findByUsername("gerente").orElseThrow();
+
+        Product product = new Product(
+                null,
+                "Morango",
+                "fruta",
+                5,
+                10,
+                "Uma fruta vermelha.",
+                user,
+                LocalDateTime.now(),
+                null
+        );
+
+        product = productRepository.save(product);
+
+        List<ProductOutput> productOutputs = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            productOutputs.add(new ProductOutput(
+                    null,
+                    product,
+                    "123456789",
+                    "José Fazendeiro",
+                    BigDecimal.valueOf(560.30),
+                    LocalDateTime.now(),
+                    20L,
+                    "Frutas frescas.",
+                    user,
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        productOutputs = productOutputRepository.saveAll(productOutputs);
+
+        ProductOutput productOutput = productOutputs.get(0);
+
+        productOutput.setBarcode("Lower than 20 chars");
+        productOutput.setBuyer("Lower than 125 characters");
+        productOutput.setSaleValue(BigDecimal.valueOf(200.0));
+        productOutput.setQuantity(50L);
+        productOutput.setObservations("Lower than 1024 characters");
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + productOutput.getId();
+        String authenticationToken = autenticationHelper.authenticateLowPermissions(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<ProductOutput> httpEntity = new HttpEntity<>(productOutput, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNull();
+    }
 
 }
