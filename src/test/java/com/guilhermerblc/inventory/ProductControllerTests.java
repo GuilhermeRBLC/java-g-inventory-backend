@@ -262,7 +262,7 @@ public class ProductControllerTests {
     // Fail tests
 
     @Test
-    void productShouldFailToGetOne_DueToID() throws Exception {
+    void productShouldFailToGetOne_DueToInvalidID() throws Exception {
         // Arrange
 
         List<Product> products = productRepository.findAll();
@@ -310,9 +310,9 @@ public class ProductControllerTests {
 
         Product product = productRepository.findById(products.get(0).getId()).orElseThrow();
 
-        product.setType("Large Than 50 characters".repeat(50));
-        product.setDescription("Large Than 125 characters".repeat(125));
-        product.setObservations("Large Than 1024 characters".repeat(1024));
+        product.setType("Larger Than 50 characters".repeat(50));
+        product.setDescription("Larger Than 125 characters".repeat(125));
+        product.setObservations("Larger Than 1024 characters".repeat(1024));
         product.setInventoryMaximum(Integer.MAX_VALUE);
         product.setInventoryMinimum(-1);
 

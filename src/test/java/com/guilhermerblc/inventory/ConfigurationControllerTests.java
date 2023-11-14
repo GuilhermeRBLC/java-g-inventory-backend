@@ -144,7 +144,7 @@ public class ConfigurationControllerTests {
     // Fail tests
 
     @Test
-    void configurationShouldFailToGetOne_DueToID() throws Exception {
+    void configurationShouldFailToGetOne_DueToInvalidID() throws Exception {
         // Arrange
 
         String requestUrl = "http://localhost:" + port + urlPath + "/5";

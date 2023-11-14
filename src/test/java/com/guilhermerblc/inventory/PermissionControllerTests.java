@@ -1,6 +1,7 @@
 package com.guilhermerblc.inventory;
 
 import com.guilhermerblc.inventory.models.Permission;
+import com.guilhermerblc.inventory.models.Product;
 import com.guilhermerblc.inventory.models.Report;
 import com.guilhermerblc.inventory.repository.PermissionRepository;
 import com.guilhermerblc.inventory.repository.ReportRepository;
@@ -30,20 +31,11 @@ public class PermissionControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private AuthenticationHelper autenticationHelper;
+
+
     private final String urlPath = "/api/v1/permission";
-
-    String authenticate() throws Exception {
-        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
-
-        SigningRequest signingRequest = new SigningRequest("gerente", "1234");
-
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
-
-        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseAuth.getBody()).isNotNull();
-
-        return responseAuth.getBody().getToken();
-    }
 
     @Test
     void permissionShouldListAll() throws Exception {
@@ -57,7 +49,7 @@ public class PermissionControllerTests {
                 "GENERATE_REPORTS", "EDIT_CONFIGURATIONS"
         );
         String requestUrl = "http://localhost:" + port + urlPath;
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -86,7 +78,7 @@ public class PermissionControllerTests {
         Permission permission = permissionRepository.findById(2L).orElseThrow();
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + permission.getId();
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -100,6 +92,51 @@ public class PermissionControllerTests {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getDescription()).isEqualTo(permission.getDescription());
         assertThat(response.getBody().getCreated()).isNotNull();
+    }
+
+    // Fail tests
+
+    @Test
+    void permissionShouldFailToGetOne_DueToInvalidID() throws Exception {
+        // Arrange
+        List<Permission> products = permissionRepository.findAll();
+        Optional<Permission> greatestId = products.stream().max(Comparator.comparing(Permission::getId));
+        long invalidId = 1L;
+        if(greatestId.isPresent()) invalidId = greatestId.get().getId() + 1;
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + invalidId;
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
+            return execution.execute(request, body);
+        })));
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Item not found.")).isTrue();
+    }
+
+    @Test
+    void permissionShouldNotGet_DueLackOfPermissionOfAuthentication() throws Exception {
+        // Arrange
+        Permission permission = permissionRepository.findById(2L).orElseThrow();
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + permission.getId();
+
+        // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().remove("Authorization");
+            return execution.execute(request, body);
+        })));
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNull();
     }
 
 }
