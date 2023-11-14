@@ -1,5 +1,6 @@
 package com.guilhermerblc.inventory;
 
+import com.guilhermerblc.inventory.models.Product;
 import com.guilhermerblc.inventory.models.Report;
 import com.guilhermerblc.inventory.models.Status;
 import com.guilhermerblc.inventory.models.User;
@@ -32,20 +33,10 @@ public class ReportControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private AuthenticationHelper autenticationHelper;
+
     private final String urlPath = "/api/v1/report";
-
-    String authenticate() throws Exception {
-        String signingUrl = "http://localhost:" + port + "/api/v1/auth/signing";
-
-        SigningRequest signingRequest = new SigningRequest("gerente", "1234");
-
-        ResponseEntity<JwtAuthenticationResponse> responseAuth = restTemplate.postForEntity(signingUrl, signingRequest, JwtAuthenticationResponse.class);
-
-        assertThat(responseAuth.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseAuth.getBody()).isNotNull();
-
-        return responseAuth.getBody().getToken();
-    }
 
     @Test
     void reportShouldBeCreated() throws Exception {
@@ -60,7 +51,7 @@ public class ReportControllerTests {
                 null
         );
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -97,7 +88,7 @@ public class ReportControllerTests {
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + requestObject.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -139,7 +130,7 @@ public class ReportControllerTests {
 
         String requestUrl = "http://localhost:" + port + urlPath;
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -172,7 +163,7 @@ public class ReportControllerTests {
         Report requestObject = reportList.get(5);
         String requestUrl = "http://localhost:" + port + urlPath + "/" + requestObject.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
@@ -206,7 +197,7 @@ public class ReportControllerTests {
 
         String requestUrl = "http://localhost:" + port + urlPath + "/" + requestObject.getId();
 
-        String authenticationToken = authenticate();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
 
         // Act
         HttpHeaders headers = new HttpHeaders();
@@ -229,6 +220,167 @@ public class ReportControllerTests {
         assertThat(response.getBody()).isNull();
 
         assertThat(databaseReport.isPresent()).isFalse();
+    }
+
+    // Fail tests
+
+    @Test
+    void reportShouldFailToGetOne_DueToInvalidID() throws Exception {
+        // Arrange
+
+        List<Report> reports = reportRepository.findAll();
+        Optional<Report> greatestId = reports.stream().max(Comparator.comparing(Report::getId));
+        long invalidId = 1L;
+        if(greatestId.isPresent()) invalidId = greatestId.get().getId() + 1;
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + invalidId;
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(((request, body, execution) -> {
+            request.getHeaders().add("Authorization", "Bearer " + authenticationToken);
+            return execution.execute(request, body);
+        })));
+        ResponseEntity<Object> response = restTemplate.getForEntity(requestUrl, Object.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Item not found.")).isTrue();
+    }
+
+    @Test
+    void reportShouldNotUpdate_DueInvalidData() throws Exception {
+        // Arrange
+
+        List<Report> reports = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            reports.add(new Report(
+                    null,
+                    "Relatório " + i,
+                    "{'initial-date': '00/00/0000', 'end-date': '99/99/99999'}",
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        reports = reportRepository.saveAll(reports);
+
+        Report report = reports.get(0);
+
+        report.setDescription("Larger Than 125 characters".repeat(125));
+        report.setFilters("Larger Than 1024 characters".repeat(1024));
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + report.getId();
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Report> httpEntity = new HttpEntity<>(report, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("Invalid data.")).isTrue();
+    }
+
+    @Test
+    void reportShouldNotUpdate_DueDifferentIDs() throws Exception {
+        // Arrange
+
+        List<Report> reports = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            reports.add(new Report(
+                    null,
+                    "Relatório " + i,
+                    "{'initial-date': '00/00/0000', 'end-date': '99/99/99999'}",
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        reports = reportRepository.saveAll(reports);
+
+        Report report = reports.get(0);
+
+        report.setDescription("Lower Than 125 characters");
+        report.setFilters("Lower Than 1024 characters");
+
+        // The ID in path must be the same in object. It should cause a fail.
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + (report.getId() + 1);
+        String authenticationToken = autenticationHelper.authenticate(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Report> httpEntity = new HttpEntity<>(report, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().toString().contains("IDs must be the same in path and body.")).isTrue();
+    }
+
+    @Test
+    void reportShouldNotUpdate_DueLackOfPermissionOfUser() throws Exception {
+        // Arrange
+
+        List<Report> reports = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            reports.add(new Report(
+                    null,
+                    "Relatório " + i,
+                    "{'initial-date': '00/00/0000', 'end-date': '99/99/99999'}",
+                    LocalDateTime.now(),
+                    null
+            ));
+        }
+        reports = reportRepository.saveAll(reports);
+
+        Report report = reports.get(0);
+
+        report.setDescription("Lower Than 125 characters");
+        report.setFilters("Lower Than 1024 characters");
+
+        String requestUrl = "http://localhost:" + port + urlPath + "/" + report.getId();
+
+        // The current user should have no permission to update this entity.
+        String authenticationToken = autenticationHelper.authenticateLowPermissions(port, restTemplate);
+
+        // Act
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(authenticationToken);
+
+        HttpEntity<Report> httpEntity = new HttpEntity<>(report, headers);
+        ResponseEntity<Object> response = restTemplate.exchange(
+                requestUrl,
+                HttpMethod.PUT,
+                httpEntity,
+                Object.class
+        );
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNull();
     }
 
 }
