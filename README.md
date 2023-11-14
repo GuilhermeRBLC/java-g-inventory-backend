@@ -26,7 +26,7 @@ Sistema de controle de estoque.
 - [x] Criar testes
 - [x] Criar documentação da API
 - [x] Configurar CORS
-- [ ] Criar testes em casos de falha
+- [x] Criar testes em casos de falha
+- [x] Testar no Postman/Swagger
 - [ ] Implementar notificações por e-mail
 - [ ] Implementar a geração de relatório
-- [ ] Testar no Postman/Swagger
