@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,7 +24,9 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
+@EnableAsync
 @SpringBootApplication
 public class GInventoryApplication {
 
@@ -39,6 +44,17 @@ public class GInventoryApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(GInventoryApplication.class, args);
+	}
+
+	@Bean(name="processExecutor")
+	public TaskExecutor workExecutor() {
+		ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+		threadPoolTaskExecutor.setThreadNamePrefix("GInventory-");
+		threadPoolTaskExecutor.setCorePoolSize(3);
+		threadPoolTaskExecutor.setMaxPoolSize(3);
+		threadPoolTaskExecutor.setQueueCapacity(600);
+		threadPoolTaskExecutor.afterPropertiesSet();
+		return threadPoolTaskExecutor;
 	}
 
 	@Bean

@@ -1,9 +1,12 @@
 package com.guilhermerblc.inventory.service.impl;
 
 import com.guilhermerblc.inventory.exceptions.IdentificationNotEqualsException;
+import com.guilhermerblc.inventory.models.ProductInput;
 import com.guilhermerblc.inventory.models.ProductOutput;
 import com.guilhermerblc.inventory.models.User;
+import com.guilhermerblc.inventory.repository.ProductInputRepository;
 import com.guilhermerblc.inventory.repository.ProductOutputRepository;
+import com.guilhermerblc.inventory.service.EmailService;
 import com.guilhermerblc.inventory.service.ProductOutputService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +21,26 @@ import java.util.NoSuchElementException;
 public class ProductOutputServiceImpl implements ProductOutputService {
 
     private final ProductOutputRepository repository;
+
+    private final ProductInputRepository inputRepository;
+
+    private final EmailService emailService;
+
+    private void sendInventoryAlert(ProductOutput productOutput) {
+        List<ProductInput> productInputs = inputRepository.findByProductId(productOutput.getProduct().getId());
+        Long currentInputInventory = productInputs.stream().reduce(0L, (s, obj) -> s + obj.getQuantity(), Long::sum);
+
+        List<ProductOutput> productOutputs = repository.findByProductId(productOutput.getProduct().getId());
+        Long currentOutputInventory = productOutputs.stream().reduce(0L, (s, obj) -> s + obj.getQuantity(), Long::sum);
+
+        long currentInventory = currentInputInventory - currentOutputInventory;
+
+        if (currentInventory > productOutput.getProduct().getInventoryMaximum()) {
+            emailService.sendHighInventoryEmailAlert(productOutput.getProduct(), currentInventory);
+        } else if (currentInventory < productOutput.getProduct().getInventoryMinimum()) {
+            emailService.sendLowInventoryEmailAlert(productOutput.getProduct(), currentInventory);
+        }
+    }
 
     @Override
     public List<ProductOutput> findAll() {
@@ -40,7 +63,11 @@ public class ProductOutputServiceImpl implements ProductOutputService {
         entity.setUser(authenticatedUser);
         entity.setCreated(LocalDateTime.now());
         entity.setModified(null);
-        return repository.save(entity);
+
+        ProductOutput productOutputSaved = repository.save(entity);
+        sendInventoryAlert(productOutputSaved);
+
+        return productOutputSaved;
     }
 
     @Override
@@ -63,11 +90,19 @@ public class ProductOutputServiceImpl implements ProductOutputService {
         productOutput.setUser(authenticatedUser);
         productOutput.setModified(LocalDateTime.now());
 
-        return repository.save(productOutput);
+        ProductOutput productOutputSaved = repository.save(productOutput);
+        sendInventoryAlert(productOutputSaved);
+
+        return productOutputSaved;
     }
 
     @Override
     public void delete(Long id) {
+
+        ProductOutput productOutput = repository.findById(id).orElseThrow();
+        sendInventoryAlert(productOutput);
+
         repository.deleteById(id);
     }
+
 }
