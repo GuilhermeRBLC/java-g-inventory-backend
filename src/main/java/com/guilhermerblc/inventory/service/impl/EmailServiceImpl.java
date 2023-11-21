@@ -15,8 +15,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@EnableAsync
 @Service
 public class EmailServiceImpl implements EmailService {
+
+    /*
+     * WARNING: The notification e-mail doesn't work in tests because it's asynchronous and the server finishes before
+     * the email is sent. But it can be done if I put something to wait the end of all tasks on the tests like in this
+     * link: https://stackoverflow.com/questions/42438862/junit-testing-a-spring-async-void-service-method#:~:text=0,the%20above%20solutions%3A
+     * */
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -27,8 +34,9 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private ConfigurationRepository configurationRepository;
 
-    @Async("processExecutor")
-    private void sendSimpleMail(String tile, String body) {
+    @Async
+    @Override
+    public void sendSimpleMail(String tile, String body) {
         Optional<Configuration> alertEmail = configurationRepository.getByName("ALERT_EMAIL");
 
         if (alertEmail.isEmpty()) {
@@ -50,6 +58,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
     @Override
     public void sendLowInventoryEmailAlert(Product product, Long currentInventory) {
         String body = "Alerta de estoque baixo para o produto: " + product.getDescription() + "\n\n";
@@ -58,6 +67,7 @@ public class EmailServiceImpl implements EmailService {
         sendSimpleMail("Alerta de estoque baixo! (" + product.getDescription() + ")", body);
     }
 
+    @Async
     @Override
     public void sendHighInventoryEmailAlert(Product product, Long currentInventory) {
         String body = "Alerta de estoque cheio para o produto: " + product.getDescription() + "\n\n";

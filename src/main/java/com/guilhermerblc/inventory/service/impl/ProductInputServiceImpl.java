@@ -9,6 +9,7 @@ import com.guilhermerblc.inventory.repository.ProductOutputRepository;
 import com.guilhermerblc.inventory.service.EmailService;
 import com.guilhermerblc.inventory.service.ProductInputService;
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@EnableAsync
 @Service
 @AllArgsConstructor
 public class ProductInputServiceImpl implements ProductInputService {
